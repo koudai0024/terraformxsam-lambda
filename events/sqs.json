@@ -1,0 +1,15 @@
+{
+  "Records": [
+    {
+      "messageId": "1",
+      "receiptHandle": "abc",
+      "body": "{\"task\":\"demo\",\"fail\":false}",
+      "attributes": { "ApproximateReceiveCount": "1" },
+      "messageAttributes": {},
+      "md5OfBody": "9bb58f26192e4ba00f01e2e7b136bbd8",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:ap-northeast-1:123456789012:my-queue",
+      "awsRegion": "ap-northeast-1"
+    }
+  ]
+}
