@@ -1,0 +1,49 @@
+name: build-and-push
+on:
+  push:
+    branches: [ main ]
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPO: my-sqs-consumer
+  PARAM_KEY: /lambda/sqs-consumer/image_uri/dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::646467289725:role/GitHubOIDCRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push
+        run: |
+          IMAGE="${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPO }}"
+          TAG="commit-${GITHUB_SHA}"
+          docker build --platform linux/amd64 -t "$IMAGE:$TAG" .
+          docker push "$IMAGE:$TAG"
+          DIGEST=$(aws ecr describe-images --repository-name "${{ env.ECR_REPO }}" \
+                    --image-ids imageTag="$TAG" \
+                    --query 'imageDetails[0].imageDigest' --output text)
+          echo "IMAGE_URI=${IMAGE}@${DIGEST}" >> $GITHUB_ENV
+          echo "Pushed: ${IMAGE}@${DIGEST}"
+
+      - name: Put image URI into SSM
+        run: |
+          aws ssm put-parameter \
+            --name "${{ env.PARAM_KEY }}" \
+            --type "String" \
+            --value "${IMAGE_URI}" \
+            --overwrite
+          echo "Saved to SSM: ${{ env.PARAM_KEY }} -> ${IMAGE_URI}"
