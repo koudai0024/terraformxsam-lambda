@@ -47,3 +47,14 @@ jobs:
             --value "${IMAGE_URI}" \
             --overwrite
           echo "Saved to SSM: ${{ env.PARAM_KEY }} -> ${IMAGE_URI}"
+  deploy_infra:
+    needs: build
+    if: ${{ needs.build.result == 'success' }}
+    uses: koudai0024/terraformxsam-infra/.github/workflows/terraform-deploy.yml@main
+    with:
+      env: dev
+    permissions:
+      contents: read
+      id-token: write                # 呼び出し側でもOIDCを許可
+    secrets:
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}  # ← コードリポ側にも同名のSecretを作る
