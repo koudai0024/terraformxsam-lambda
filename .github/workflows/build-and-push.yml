@@ -57,4 +57,4 @@ jobs:
       contents: read
       id-token: write                # 呼び出し側でもOIDCを許可
     secrets:
-      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}  # ← コードリポ側にも同名のSecretを作る
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}  
