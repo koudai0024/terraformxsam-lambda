@@ -70,4 +70,3 @@ jobs:
           env: dev
           aws-region: ap-northeast-1
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          workdir: _infra       # ← ここが肝（tfが _infra 直下の場合）
