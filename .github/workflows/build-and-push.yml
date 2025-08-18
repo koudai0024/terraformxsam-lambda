@@ -55,7 +55,7 @@ jobs:
       id-token: write  
     steps:
       - name: Terraform Deploy (composite from infra repo)
-        uses: koudai0024/terraformxsam-infra/.github/actions/terraform-deploy@main
+        uses: koudai0024/terraformxsam-infra/.github/actions/terraform-deploy@2e7fcb0f003624dc19e51cd19a3fc39bce260166
         with:
           env: dev
           aws-region: ap-northeast-1
