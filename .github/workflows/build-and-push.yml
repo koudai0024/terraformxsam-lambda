@@ -50,14 +50,11 @@ jobs:
   deploy_infra:
     needs: build
     if: ${{ needs.build.result == 'success' }}
-    runs-on: ubuntu-latest
+    uses: koudai0024/terraformxsam-infra/.github/workflows/terraform-deploy.yml@main
+    with:
+      env: dev
     permissions:
       contents: read
-      id-token: write
-    steps:
-      - name: Terraform Deploy (composite from infra repo)
-        uses: koudai0024/terraformxsam-infra/.github/actions/terraform-deploy@main
-        with:
-          env: dev
-          aws-region: ap-northeast-1
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      id-token: write                # 呼び出し側でもOIDCを許可
+    secrets:
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}  
