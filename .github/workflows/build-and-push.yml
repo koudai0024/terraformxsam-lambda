@@ -48,15 +48,25 @@ jobs:
             --overwrite
           echo "Saved to SSM: ${{ env.PARAM_KEY }} -> ${IMAGE_URI}"
   deploy_infra:
-    needs: build    
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write  
+      id-token: write
     steps:
-      - name: Terraform Deploy (composite from infra repo)
-        uses: koudai0024/terraformxsam-infra/.github/actions/terraform-deploy@2e7fcb0f003624dc19e51cd19a3fc39bce260166
+      - uses: actions/checkout@v4
+
+      - name: Checkout infra action repo (private)
+        uses: actions/checkout@v4
+        with:
+          repository: koudai0024/terraformxsam-infra
+          ref: main              # 可能ならコミットSHA固定推奨
+          token: ${{ secrets.PRIVATE_ACTIONS_TOKEN }}
+          path: _infra
+
+      - name: Terraform Deploy (local composite)
+        uses: ./_infra/.github/actions/terraform-deploy
         with:
           env: dev
           aws-region: ap-northeast-1
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}   # ← Lambdaリポ側のシークレット
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
